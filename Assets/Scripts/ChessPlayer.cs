@@ -8,17 +8,8 @@ public class ChessPlayer :NetworkBehaviour
 
 
 
-	#region  var singleton
-	private static ChessPlayer _instance;
-	public static ChessPlayer Instance{
-		get{ 
-			if (_instance == null) {
-				_instance = GameObject.FindObjectOfType (typeof(ChessPlayer)) as ChessPlayer;
-			}
-			return _instance;
-		}
-	}
-	#endregion
+
+
 	public const int Rows = 15;
 	public const int Columns = 15;
 	public int[,] ChessGrid=new int[Rows,Columns];
@@ -26,30 +17,79 @@ public class ChessPlayer :NetworkBehaviour
 	public float chessGridWidth=0.0f;
 	public UnityEngine.RectTransform calculateChessBoard;
 	public GameObject whiteChessPrefab;
-	public void PlaceChessPos(RectTransform calculateChessBoard,Vector2 v,GameObject whiteChessPrefab)
+
+	[SyncVar]
+	public int PlayerID = 0;
+
+	void Start()
+	{
+		if (isLocalPlayer) {
+			this.gameObject.name = "localPlayer";
+			MianUI.Instance.player = this;
+			whiteChessPrefab = MianUI.Instance.whiteChessPrefab;
+		} 
+		else 
+		{
+			this.gameObject.name = "enemy";
+		}
+		MianUI.Instance.AddPlayer (1);
+		if (isServer) {
+			PlayerID  = MianUI.Instance.PlayerCount;
+		}
+
+	}
+
+	void OnDestroy(){
+		if(MianUI.Instance!=null)
+	     	MianUI.Instance.AddPlayer (-1);
+	}
+
+	public void StartInitGame(){
+		if (MainController.Instance == null) {
+			Debug.Log ("StartInitGame---");
+			CmdAddController ();
+		}
+	}
+	[Command]
+	public void CmdAddController(){
+		Debug.Log ("CmdAddController---"+Time.time);
+		GameObject go = GameObject.Instantiate (NetworkManager.singleton.spawnPrefabs [2]);
+		NetworkServer.Spawn (go);
+	}
+
+	public void PlaceChessPos(int x,int y)
 	{
 		if (!isLocalPlayer)
 			return;
-		this.calculateChessBoard = calculateChessBoard;
-		this.whiteChessPrefab = whiteChessPrefab;
-		chessSize = calculateChessBoard.rect.size;
-		chessGridWidth = chessSize.x / 14;
-		int _x = Mathf.RoundToInt (v.x / chessGridWidth);
-		int _y = Mathf.RoundToInt (v.y / chessGridWidth);
-		CmdPlaceChess (_x, _y);
+		if (MainController.Instance.CheckIsMyPlayerPlace (PlayerID)) {
+			CmdPlaceChess (x, y);
+		}
 
 
 	}
 
 
 	[Command]
-	private void CmdPlaceChess(int _x,int _y){
-		ChessGrid [_x, _y] = 1;
-		GameObject go = GameObject.Instantiate (whiteChessPrefab, Vector3.zero, Quaternion.identity) as GameObject;
-		go.transform.SetParent (calculateChessBoard.transform,false);
-		go.SetActive (true);
-		go.gameObject.GetComponent<RectTransform> ().anchoredPosition = new Vector2 (_x * chessGridWidth, _y * chessGridWidth);
-		NetworkServer.Spawn (go);
+	private void CmdPlaceChess(int x,int y)
+	{
+		Debug.Log ("Server excute CmdPlaceChess---"+x+","+y+"  "+this.gameObject.name);
+		if (MianUI.Instance.chessGridPos [x, y] == 0) 
+		{
+			GameObject p = MianUI.Instance.whiteChessPrefab;
+			if (PlayerID % 2 == 1) {
+				p = MianUI.Instance.blackChessPrefab;
+			}
+			MainController.Instance.AddChessCount ();
+			GameObject go = GameObject.Instantiate (p, Vector3.zero, Quaternion.identity) as GameObject;
+			go.GetComponent<Chessdot> ().SetXY (x, y);
+			go.SetActive (true);
+			NetworkServer.Spawn (go);
+			MianUI.Instance.chessGridPos [x, y] = 1;
+		}
 	}
+
+
+
+
 
 }
