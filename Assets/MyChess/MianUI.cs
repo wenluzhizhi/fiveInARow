@@ -51,6 +51,7 @@ public class MianUI :UIBehaviour{
 	public Text currentState;
 	public InputField IpField;
 	public Text ipText;
+	public GameObject OperationTips;
 
 	protected override void Start ()
 	{
@@ -160,6 +161,10 @@ public class MianUI :UIBehaviour{
 
 	public void ShowLog(){
 		ShowLogConsole.visible = !ShowLogConsole.visible;
+	}
+
+	public void OnClickShowOperations(){
+		OperationTips.gameObject.SetActive (!OperationTips.gameObject.activeInHierarchy);
 	}
 	#endregion
 
