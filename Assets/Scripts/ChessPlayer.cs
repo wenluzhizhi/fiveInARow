@@ -68,6 +68,7 @@ public class ChessPlayer :NetworkBehaviour
 
 	}
 
+	int chessType=2;  //1黑棋，2 白棋
 
 	[Command]
 	private void CmdPlaceChess(int x,int y)
@@ -76,15 +77,19 @@ public class ChessPlayer :NetworkBehaviour
 		if (MianUI.Instance.chessGridPos [x, y] == 0) 
 		{
 			GameObject p = MianUI.Instance.whiteChessPrefab;
-			if (PlayerID % 2 == 1) {
+			if (PlayerID % 2 == 1) 
+			{
 				p = MianUI.Instance.blackChessPrefab;
+				chessType = 2;
+
 			}
 			MainController.Instance.AddChessCount ();
 			GameObject go = GameObject.Instantiate (p, Vector3.zero, Quaternion.identity) as GameObject;
 			go.GetComponent<Chessdot> ().SetXY (x, y);
 			go.SetActive (true);
 			NetworkServer.Spawn (go);
-			MianUI.Instance.chessGridPos [x, y] = 1;
+			MianUI.Instance.chessGridPos [x, y] = chessType;
+			MianUI.Instance.CaculateResult (x, y, chessType);
 		}
 	}
 

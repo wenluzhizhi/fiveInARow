@@ -4,12 +4,30 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Networking;
 using System.Net;
+using DG.Tweening;
 
 
 
 
 public class MianUI :UIBehaviour{
 
+
+	#region  singleton
+	private static MianUI _instance;
+	public static MianUI Instance{
+		get{ 
+			if (_instance == null) {
+				_instance = GameObject.FindObjectOfType (typeof(MianUI)) as MianUI;
+			}
+			return _instance;
+		}
+	}
+
+
+	#endregion
+
+
+	#region  var
 	public RectTransform calculateChessBoard;
 	public Canvas ca;
 	public Vector2 ScreenPos;
@@ -22,15 +40,6 @@ public class MianUI :UIBehaviour{
 	public int PlayerCount=0;
 
 
-	private static MianUI _instance;
-	public static MianUI Instance{
-		get{ 
-			if (_instance == null) {
-				_instance = GameObject.FindObjectOfType (typeof(MianUI)) as MianUI;
-			}
-			return _instance;
-		}
-	}
 
 
 	public GameObject whiteChessPrefab;
@@ -53,6 +62,10 @@ public class MianUI :UIBehaviour{
 	public Text ipText;
 	public GameObject OperationTips;
 
+	#endregion
+
+	#region  monoEvent
+
 	protected override void Start ()
 	{
 		base.Start ();
@@ -61,14 +74,7 @@ public class MianUI :UIBehaviour{
 		currentPlayerCountText.text = "当前在线：0";
 	}
 
-	public void AddPlayer(int k)
-	{
-		PlayerCount+=k;
-		if (PlayerCount >= 2) {
-			StartGame.interactable = true;
-		}
-		currentPlayerCountText.text = "在线："+PlayerCount;
-	}
+
 
 	void Update () 
 	{
@@ -105,6 +111,20 @@ public class MianUI :UIBehaviour{
 		}
 	}
 
+	#endregion
+
+
+	#region external funcion
+	public void AddPlayer(int k)
+	{
+		PlayerCount+=k;
+		if (PlayerCount >= 2) {
+			StartGame.interactable = true;
+		}
+		currentPlayerCountText.text = "在线："+PlayerCount;
+	}
+
+
 	public void StartRealGame(){
 		StartGame.interactable = false;
 		joinGame.interactable = false;
@@ -120,6 +140,8 @@ public class MianUI :UIBehaviour{
 			whiteChess.gameObject.SetActive (true);
 		}
 	}
+
+	#endregion
 
 	#region  OnClick Event
 	public void OnClickStarGame()
@@ -156,17 +178,35 @@ public class MianUI :UIBehaviour{
 	}
 
 	public void OnClickSetUpPanel(){
-		SetUpPanel.gameObject.SetActive (!SetUpPanel.activeInHierarchy);
+		RectTransform _t = SetUpPanel.gameObject.GetComponent<RectTransform> ();
+		if (_t.gameObject.activeInHierarchy) {
+			_t.DOScaleY (0.0f, 0.2f).OnComplete (delegate() {
+				_t.gameObject.SetActive (false);
+
+			});
+		} else {
+			_t.gameObject.SetActive (true);
+			_t.DOScaleY (1.0f, 0.2f);
+		}
 	}
 
 	public void ShowLog(){
 		ShowLogConsole.visible = !ShowLogConsole.visible;
 	}
 
-	public void OnClickShowOperations(){
-		OperationTips.gameObject.SetActive (!OperationTips.gameObject.activeInHierarchy);
+	public void OnClickShowOperations()
+	{
+		RectTransform _t = OperationTips.gameObject.GetComponent<RectTransform> ();
+		if (_t.gameObject.activeInHierarchy) {
+			_t.DOScaleY (0.0f, 0.2f).OnComplete (delegate() {
+				_t.gameObject.SetActive (false);
+				
+			});
+		} else {
+			_t.gameObject.SetActive (true);
+			_t.DOScaleY (1.0f, 0.2f);
+		}
 	}
-	#endregion
 
 	public void  GetLocalIP(){
 		string hostName = Dns.GetHostName ();
@@ -176,7 +216,114 @@ public class MianUI :UIBehaviour{
 		for (int i = 0; i < localAdd.Length; i++) {
 			ipText.text += localAdd [i].ToString () + "\r\n";
 		}
+
+	}
+
+	public void CaculateResult(int x,int y,int type){
+		if (type== 1) {//黑棋
+			
+			
+		} else if (type == 2) {  //白棋
+			
+		}
+
+
+
+		#region 水平
+		int su_c=1;
+		int _k = x-1;
+		while (_k > 0 && chessGridPos [_k, y] == type) {
+			su_c++;
+			_k = _k - 1;
+		}
+
+		_k = x+1;
+		while (_k <Columns && chessGridPos [_k, y] == type) {
+			su_c++;
+			_k = _k+ 1;
+		}
+
+
+		if (su_c >= 5) {
+			Debug.Log (type+"___win");
+		}
+		#endregion
+
+
+		#region 垂直
+	    su_c=1;
+	    _k = y-1;
+		while (_k > 0 && chessGridPos [x, _k] == type) {
+			su_c++;
+			_k = _k - 1;
+		}
+
+		_k = y+1;
+		while (_k <Columns && chessGridPos [x, _k] == type) {
+			su_c++;
+			_k = _k+ 1;
+		}
+
+
+		if (su_c >= 5) {
+			Debug.Log (type+"___win");
+		}
+		#endregion
+
+	
+		#region  斜45
+		su_c=1;
+		_k = y-1;
+		int _k2=x-1;
+		while (_k > 0 &&_k2>0&& chessGridPos [_k2, _k] == type) {
+			su_c++;
+			_k2 = _k2 - 1;
+			_k=_k-1;
+		}
+
+		_k = y+1;
+		_k2=x+1;
+		while (_k2<ROWS&&_k <Columns && chessGridPos [_k2, _k] == type) {
+			su_c++;
+			_k = _k+ 1;
+			_k2=_k2+1;
+		}
+
+
+		if (su_c >= 5) {
+			Debug.Log (type+"___win");
+		}
+
+		#endregion
+	
+		#region  反斜45
+
+		su_c=1;
+		_k = y+1;
+	    _k2=x-1;
+		while (_k < ROWS &&_k2>0&& chessGridPos [_k2, _k] == type) {
+			su_c++;
+			_k2 = _k2 - 1;
+			_k=_k+1;
+		}
+
+		_k = y-1;
+		_k2=x+1;
+		while (_k2<Columns&&_k >0 && chessGridPos [_k2, _k] == type) {
+			su_c++;
+			_k = _k-1;
+			_k2=_k2+1;
+		}
+
+
+		if (su_c >= 5) {
+			Debug.Log (type+"___win");
+		}
+
+		#endregion
 	
 	}
+	#endregion
+
 
 }
