@@ -73,16 +73,16 @@ public class ChessPlayer :NetworkBehaviour
 	[Command]
 	private void CmdPlaceChess(int x,int y)
 	{
-		Debug.Log ("Server excute CmdPlaceChess---"+x+","+y+"  "+this.gameObject.name);
+		
 		if (MianUI.Instance.chessGridPos [x, y] == 0) 
 		{
 			GameObject p = MianUI.Instance.whiteChessPrefab;
 			if (PlayerID % 2 == 1) {
 				p = MianUI.Instance.blackChessPrefab;
-				chessType = 2;
+				chessType = 1;
 
 			} else {
-				chessType = 1;
+				chessType = 2;
 			}
 			MainController.Instance.AddChessCount ();
 			GameObject go = GameObject.Instantiate (p, Vector3.zero, Quaternion.identity) as GameObject;
