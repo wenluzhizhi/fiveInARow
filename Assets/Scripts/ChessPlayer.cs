@@ -77,11 +77,12 @@ public class ChessPlayer :NetworkBehaviour
 		if (MianUI.Instance.chessGridPos [x, y] == 0) 
 		{
 			GameObject p = MianUI.Instance.whiteChessPrefab;
-			if (PlayerID % 2 == 1) 
-			{
+			if (PlayerID % 2 == 1) {
 				p = MianUI.Instance.blackChessPrefab;
 				chessType = 2;
 
+			} else {
+				chessType = 1;
 			}
 			MainController.Instance.AddChessCount ();
 			GameObject go = GameObject.Instantiate (p, Vector3.zero, Quaternion.identity) as GameObject;

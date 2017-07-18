@@ -72,6 +72,7 @@ public class MianUI :UIBehaviour{
 		whiteChessPrefab.gameObject.SetActive (false);
 		blackChessPrefab.gameObject.SetActive (false);
 		currentPlayerCountText.text = "当前在线：0";
+		InitGrid ();
 	}
 
 
@@ -141,6 +142,11 @@ public class MianUI :UIBehaviour{
 		}
 	}
 
+
+	public void StopGame(){
+		OnClickStopGame ();
+		InitGrid ();
+	}
 	#endregion
 
 	#region  OnClick Event
@@ -150,6 +156,7 @@ public class MianUI :UIBehaviour{
 		{
 			player.StartInitGame ();
 		}
+		InitGrid ();
 	}
 	public void OnClickStartHost()
 	{
@@ -220,15 +227,7 @@ public class MianUI :UIBehaviour{
 	}
 
 	public void CaculateResult(int x,int y,int type){
-		if (type== 1) {//黑棋
-			
-			
-		} else if (type == 2) {  //白棋
-			
-		}
-
-
-
+		Debug.Log ("type-------"+type);
 		#region 水平
 		int su_c=1;
 		int _k = x-1;
@@ -245,7 +244,9 @@ public class MianUI :UIBehaviour{
 
 
 		if (su_c >= 5) {
-			Debug.Log (type+"___win");
+			Debug.Log (type+"___win:"+su_c);
+			MainController.Instance.ShowResult(type);
+			return;
 		}
 		#endregion
 
@@ -267,6 +268,8 @@ public class MianUI :UIBehaviour{
 
 		if (su_c >= 5) {
 			Debug.Log (type+"___win");
+			MainController.Instance.ShowResult(type);
+			return;
 		}
 		#endregion
 
@@ -292,6 +295,8 @@ public class MianUI :UIBehaviour{
 
 		if (su_c >= 5) {
 			Debug.Log (type+"___win");
+			MainController.Instance.ShowResult(type);
+			return;
 		}
 
 		#endregion
@@ -318,12 +323,27 @@ public class MianUI :UIBehaviour{
 
 		if (su_c >= 5) {
 			Debug.Log (type+"___win");
+			MainController.Instance.ShowResult(type);
+			return;
 		}
 
 		#endregion
 	
 	}
+
+
+
 	#endregion
 
+	#region  internal function
 
+	private void InitGrid(){
+		for (int i = 0; i < ROWS; i++) {
+			for (int j = 0; j < Columns; j++) {
+				chessGridPos [i, j] = 0;
+			}
+		}
+	}
+
+	#endregion
 }

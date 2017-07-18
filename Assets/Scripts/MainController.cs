@@ -52,5 +52,21 @@ public class MainController : NetworkBehaviour
 	}
 
 
+	public void ShowResult(int type){
+		RpcshowEnd (type);
+	}
+
+
+	[ClientRpc]
+	void RpcshowEnd(int type){
+
+		Debug.Log ("--------"+type+"    win");
+		if (MianUI.Instance.player.PlayerID == type) {
+			TipManager.Instance.ShowTips ("you are win");
+		} else {
+			TipManager.Instance.ShowTips ("you are lost");
+		}
+
+	}
 
 }
