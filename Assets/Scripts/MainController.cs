@@ -62,9 +62,9 @@ public class MainController : NetworkBehaviour
 
 		Debug.Log ("--------"+type+"    win");
 		if (MianUI.Instance.player.PlayerID == type) {
-			TipManager.Instance.ShowTips ("you are win");
+			TipManager.Instance.ShowTips ("恭喜，赢得了这场比赛！");
 		} else {
-			TipManager.Instance.ShowTips ("you are lost");
+			TipManager.Instance.ShowTips ("很遗憾，您输了，再接再厉吧！");
 		}
 
 	}
